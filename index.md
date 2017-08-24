@@ -1,5 +1,5 @@
 ---
-title: XX'S Blog
+title: Ruby 真棒 ！
 layout: post
 ---
 
