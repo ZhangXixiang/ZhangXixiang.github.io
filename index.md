@@ -1,5 +1,5 @@
 ---
-title: Why Blog
+title: XX'S Blog
 layout: post
 ---
 
