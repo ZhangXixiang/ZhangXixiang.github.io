@@ -1,9 +1,9 @@
 ---
-title: Ruby 真棒 ！
+title: It's a brand new start
 layout: post
 ---
 
-##Ruby 真棒 ！ 
+##The website is in contribution...
 
 
 
