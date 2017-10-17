@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Airbnb Boggle Game
+title: 十月上旬面试总结
 category: 面试
 tags: Airbnb,Interview
-keywords: Airbnb,Interview,Boogle Game
+keywords: 互联网，java
 ---
 
 2017年10月17日记
