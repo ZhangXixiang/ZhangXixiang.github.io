@@ -2,7 +2,7 @@
 layout: post
 title: 十月上旬面试总结
 category: 面试
-tags: Airbnb,Interview
+tags: Interview
 keywords: 互联网，java
 ---
 
