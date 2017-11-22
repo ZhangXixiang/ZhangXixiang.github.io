@@ -4,7 +4,7 @@ email: zxx199109@163.com
 description: > # this means to ignore newlines until "baseurl:"
   穿越整个城市的越野跑
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: http://ZhangXixiang.org # the base hostname & protocol for your site
+url: http://zhangxixiang.github.io # the base hostname & protocol for your site
 rss_url: /pages/feed.xml
 author: Zhang Xixiang
 
@@ -16,7 +16,7 @@ recent_num: 20
 # Social account
 twitter: zxx199109@163.com
 weibo: 穿越整个城市的越野跑
-github: zxx199109@163.com
+github: zhangxixiang
 instagram: zxx199109@163.com
 linkedin: zxx199109@163.com
 
