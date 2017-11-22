@@ -1,12 +1,12 @@
 # Site settings
-title: 章熙祥的博客
-email: suyan0830@gmail.com
+title: 穿越整个城市的越野跑
+email: zxx199109@163.com
 description: > # this means to ignore newlines until "baseurl:"
-  章熙祥的博客
+  穿越整个城市的越野跑
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: http://ZhangXixiang.org # the base hostname & protocol for your site
 rss_url: /pages/feed.xml
-author: Su Yan
+author: Zhang Xixiang
 
 # Sidebar filter
 # Choose 'tag' or 'category' as filter in sidebar.
@@ -14,19 +14,19 @@ filter: 'category'
 recent_num: 20
 
 # Social account
-twitter: masonsuyan
-weibo: suyan0830
-github: ZhangXixiang
-instagram: suyan0830
-linkedin: suyan0830
+twitter: zxx199109@163.com
+weibo: 穿越整个城市的越野跑
+github: zxx199109@163.com
+instagram: zxx199109@163.com
+linkedin: zxx199109@163.com
 
 # avatar and Favicon
-avatar: http://b143.photo.store.qq.com/psb?/V149A1l11qJaQQ/qot5IGoXOq2Ri9wmtjyW1HwHIvntaLSVh6mCxhZne7I!/b/dI8AAAAAAAAA&bo=6QM2BekDNgUFCSo!&rf=viewer_4
-favicon: http://a4.qpic.cn/psb?/V149A1l11lpcfV/d682AEpFy.s7FBsaSYeYrqLIr6ya0g8En0slq*5NJkQ!/b/dGsBAAAAAAAA&ek=1&kp=1&pt=0&bo=5QFJAeUBSQERADc!&vuin=1140261123&tm=1503626400&sce=60-2-2&rf=viewer_311
+avatar: http://r.photo.store.qq.com/psb?/V149A1l11qJaQQ/ODG9Nm2faClmXIkuKnebt7x30aUy1Wgzu3Ov50geJlI!/r/dAsBAAAAAAAA
+favicon: http://r.photo.store.qq.com/psb?/V149A1l11qJaQQ/ODG9Nm2faClmXIkuKnebt7x30aUy1Wgzu3Ov50geJlI!/r/dAsBAAAAAAAA
 
 # disqus config
 disqus:
-  shortname: suyan-zh
+  shortname: zxx
 
 # google analytics config
 ga:
