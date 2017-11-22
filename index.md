@@ -7,4 +7,5 @@ It was right then that I started thinking about Thomas Jefferson--<the Declarati
 
 ![cover](http://r.photo.store.qq.com/psb?/V149A1l11qJaQQ/ODG9Nm2faClmXIkuKnebt7x30aUy1Wgzu3Ov50geJlI!/r/dAsBAAAAAAAA)
 <img src="http://r.photo.store.qq.com/psb?/V149A1l11qJaQQ/ODG9Nm2faClmXIkuKnebt7x30aUy1Wgzu3Ov50geJlI!/r/dAsBAAAAAAAA" style="zoom:50%" />
+<img src="http://r.photo.store.qq.com/psb?/V149A1l11qJaQQ/ODG9Nm2faClmXIkuKnebt7x30aUy1Wgzu3Ov50geJlI!/r/dAsBAAAAAAAA" style="height:200px" />
 
