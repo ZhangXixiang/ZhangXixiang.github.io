@@ -18,7 +18,7 @@ Win10配置J2EE开发环境记录（大数据，mysql，商城）：
 
 5/安装CRT；
 
-6/sqlyog；连接192.168.2.18  root/meicai@!#
+6/sqlyog；连接数据库ip  用户名/密码  
 
 7/配置tomcat，集成到IDEA；
 
