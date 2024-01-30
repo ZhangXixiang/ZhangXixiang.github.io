@@ -8,6 +8,18 @@ keywords: Git
 
 ## 库管理
 
+### 初始化一个库
+```
+操作步骤及git命令（以github为例）：
+1. 首先在github上创建一个远程仓库（Repositories）。
+2.本地创建一个文件夹，通过git init命令，该文件成为本地仓库。
+3.在该文件（本地仓库目录下）创建一个工程，通过git add . 将创建的项目添加到本地仓库。
+4. 通过git commit -m ‘标注信息’ 将项目提交到仓库（应该是本地仓库）。
+5.将本地仓库与远程仓库关联：git remote add origin https://github.com/person/demo.git（远程仓库http地址）.
+6.需要将远程仓库和本地仓库的文件内容同步：git pull --rebase origin master 。
+7将本地仓库的项目文件推送到远程仓库： git push -u origin master
+```
+
 ### 克隆库
 
 ```bash
