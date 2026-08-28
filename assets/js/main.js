@@ -81,6 +81,7 @@ $(function() {
 
   $(document).on({
     'pjax:click': function() {
+      window.__pjaxLoaded = true;
       NProgress.start();
       main.removeClass('fadeIn');
     },

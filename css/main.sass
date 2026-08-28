@@ -11,14 +11,22 @@ $breakpoint-mobile: 767px
 // # Font
 $font: 'Open Sans', 'Hiragino Sans GB', sans-serif
 
-// # Sidebar Background Gradient
-$gradient-start: #C2E987
-$gradient-end:   #309E85
-// $sidebar-bg: linear-gradient(136deg, $gradient-start, $gradient-end)
+// # Tech Neon Colors
+$neon-cyan: #00f0ff
+$neon-purple: #a855f7
+$neon-green: #00ff88
+$neon-pink: #ff006e
+$dark-bg: #0a0e17
+$dark-surface: #111827
+$dark-card: #1a2332
 
-$sidebar-bg: #474d57
-$sidebar-left-bg: #474d57
-$sidebar-right-bg: #f7f7f7
+// # Sidebar Background Gradient
+$gradient-start: $neon-cyan
+$gradient-end:   $neon-purple
+
+$sidebar-bg: $dark-surface
+$sidebar-left-bg: linear-gradient(180deg, #0d1526 0%, #111827 100%)
+$sidebar-right-bg: $dark-card
 
 // # Sidebar Left
 $sidebar-left-width: 120px
@@ -33,15 +41,15 @@ $social-icon-outer-padding: 10px
 $social-icon-size: 18px
 $social-icon-margin: 1px
 $social-icon-color: rgba(255, 255, 255, .6)
-$social-icon-hover-color: #FFF
+$social-icon-hover-color: $neon-cyan
 
 // Tags
 $tag-height: 40px
 $tag-font-size: 17px
-$tag-color: rgba(255, 255, 255, .7)
-$tag-hover-color: rgba(255, 255, 255, .85)
-$tag-active-color: #000000
-$tag-border-color: rgba(255, 255, 255, 1)
+$tag-color: rgba(226, 232, 240, .6)
+$tag-hover-color: $neon-cyan
+$tag-active-color: $neon-cyan
+$tag-border-color: rgba(0, 240, 255, .15)
 
 // # Sidebar Right
 $sidebar-right-width: 360px
@@ -50,13 +58,13 @@ $sidebar-right-width: 360px
 $search-box-height: 64px
 $search-box-font-size: 18px
 
-$search-box-color: #AAAAAA
-$search-box-placeholder: rgba(84, 84, 84, .7)
-$search-box-bg: #f7f7f7
+$search-box-color: rgba(226, 232, 240, .8)
+$search-box-placeholder: rgba(226, 232, 240, .35)
+$search-box-bg: rgba(0, 0, 0, .3)
 
 // Toc
-$toc-color: #55606F
-$toc-bg: $tag-border-color
+$toc-color: rgba(226, 232, 240, .65)
+$toc-bg: rgba(0, 0, 0, .2)
 
 $toc-font-size: 16px
 $toc-line-height: 22px
@@ -73,31 +81,31 @@ $post-max-width: 800px
 $post-width-at-3-columns: 80%
 $post-width-at-1-column: 720px
 
-$post-meta-color: #BCC1C4
+$post-meta-color: rgba(226, 232, 240, .45)
 
-$post-title-color: #283444
-$post-text-color: #283444
-$post-link-color: lighten($post-text-color, 20%)
-$post-link-hover-color: $gradient-end
+$post-title-color: #e2e8f0
+$post-text-color: rgba(226, 232, 240, .85)
+$post-link-color: $neon-cyan
+$post-link-hover-color: $neon-green
 
-$post-bg: #FFFFFF
+$post-bg: $dark-bg
 
 $post-img-border-color: darken($post-bg, 4%)
 $post-img-border-width: 4px
 
-$post-code-inline-color: lighten($post-text-color, 10%)
-$post-code-inline-bg: darken($post-bg, 10%)
+$post-code-inline-color: $neon-green
+$post-code-inline-bg: rgba(0, 240, 255, 0.08)
 $post-code-font: 'Droid Sans Mono', monospace
 
-$post-code-block-bg: #282a36
+$post-code-block-bg: #0d1117
 
 $post-font-size: 18px
 $post-line-height: 1.6
 $post-paragraph-spacing: 30px
 
-$post-hr-color: darken($post-bg, 5%)
+$post-hr-color: rgba(0, 240, 255, .15)
 
-$post-share-bg: darken($post-bg, 1%)
+$post-share-bg: rgba(0, 240, 255, .03)
 $post-share-color: $post-meta-color
 $post-share-hover-color: $gradient-end
 
@@ -120,11 +128,11 @@ $menu-size: 42px
 
 // # post toc
 $post-toc-width: 200px
-$post-toc-bg: #fafafa
-$post-toc-border-color: #e5e8ec
-$post-toc-title-color: #2C353D
-$post-toc-li-color: #7D8B99
-$post-toc-hover-color: #2EB695
+$post-toc-bg: rgba(17, 24, 39, 0.92)
+$post-toc-border-color: rgba(0, 240, 255, .2)
+$post-toc-title-color: $neon-cyan
+$post-toc-li-color: rgba(226, 232, 240, .6)
+$post-toc-hover-color: $neon-green
 
 // # Customise webkit scrollbar
 
@@ -137,7 +145,7 @@ $code-scrollbar-color: $post-meta-color
 // # NProgerss
 
 $nprogress-height: 3px
-$nprogress-color: red
+$nprogress-color: $neon-cyan
 
 // # Time function
 $time-function: cubic-bezier(0.770, 0.000, 0.175, 1.000)
@@ -156,3 +164,4 @@ $time-function: cubic-bezier(0.770, 0.000, 0.175, 1.000)
 @import '10-posttoc'
 @import 'a-smallscreen'
 @import 'b-mobile'
+@import '11-tech-effects'

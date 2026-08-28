@@ -17,11 +17,14 @@
     width: $sidebar-left-width
     height: 100%
     background: $sidebar-left-bg
+    border-right: 1px solid rgba(0, 240, 255, .1)
+    box-shadow: inset -1px 0 20px rgba(0, 240, 255, .03)
   &-right
     float: left
     width: $sidebar-right-width
     height: 100%
     background: $sidebar-right-bg
+    border-right: 1px solid rgba(0, 240, 255, .08)
   &.open
     transform: translateX(100%)
 
@@ -32,9 +35,13 @@
   display: block
   width: $avatar-size
   margin: 4vh auto 1.5vh
-  border: $avatar-border-size solid $avatar-border-color
+  border: $avatar-border-size solid rgba(0, 240, 255, .5)
   border-radius: 50%
   overflow: hidden
+  box-shadow: 0 0 20px rgba(0, 240, 255, .3), 0 0 40px rgba(168, 85, 247, .15)
+  transition: box-shadow 0.3s ease
+  &:hover
+    box-shadow: 0 0 30px rgba(0, 240, 255, .5), 0 0 60px rgba(168, 85, 247, .25)
   &-img
     display: block
     width: 100%
@@ -91,10 +98,12 @@
   cursor: pointer
   &:hover
     color: $tag-hover-color
-    box-shadow: inset 6px 0 0 $toc-bg
+    box-shadow: inset 6px 0 0 rgba(0, 240, 255, .4)
+    text-shadow: 0 0 8px rgba(0, 240, 255, .3)
   &.active
     color: $tag-active-color
-    box-shadow: inset $sidebar-left-width 0 0 $toc-bg
+    box-shadow: inset $sidebar-left-width 0 0 rgba(0, 240, 255, .15)
+    text-shadow: 0 0 8px rgba(0, 240, 255, .4)
 
 
 // Sidebar Right
@@ -124,10 +133,15 @@
   color: $search-box-color
   background: $search-box-bg
   border: none
+  border-bottom: 1px solid rgba(0, 240, 255, .1)
   border-radius: 0
   outline: none
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
+  transition: border-color 0.3s ease, box-shadow 0.3s ease
+  &:focus
+    border-bottom-color: rgba(0, 240, 255, .4)
+    box-shadow: 0 2px 15px rgba(0, 240, 255, .1)
   &::-webkit-input-placeholder
     color: $search-box-placeholder
   &::-moz-placeholder
@@ -171,6 +185,10 @@
   color: $toc-color
   overflow: hidden
   outline: none
+  transition: color 0.2s ease, text-shadow 0.2s ease
+  &:hover
+    color: $neon-cyan
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.3)
   &:before
     position: absolute
     top: 2px
@@ -180,8 +198,8 @@
     @extend %icon-chevron-right
     font-size: $toc-bullet-size
     color: $toc-bullet-unread
-    transition: transform .15s linear
+    transition: transform .15s linear, color .15s linear
   &:visited:before
-    color: $toc-bullet-read
+    color: rgba(226, 232, 240, .3)
   &:hover:before
     animation: joggle .6s linear
