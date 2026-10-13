@@ -1,0 +1,349 @@
+@use 'tokens' as *;
+@use 'base' as *;
+
+// ============================================================================
+// 左侧图标轨 + 中间文章索引
+// ============================================================================
+
+// ---------- 左轨：头像 / 竖排 wordmark / 社交 ----------
+.rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 var(--rail-width);
+  width: var(--rail-width);
+  padding: 26px 0 20px;
+  background: linear-gradient(180deg, #0b1220 0%, #0d1526 45%, #0a0e17 100%);
+  border-right: 1px solid var(--line-soft);
+
+  // 右缘霓虹细线
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--neon-cyan), transparent 30%, transparent 70%, var(--neon-purple));
+    opacity: 0.5;
+  }
+}
+
+// 头像：旋转锥形渐变光环包裹
+.avatar-wrap {
+  position: relative;
+  display: block;
+  width: 62px;
+  height: 62px;
+  flex: 0 0 auto;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      var(--neon-cyan),
+      var(--neon-purple),
+      var(--neon-green),
+      var(--neon-cyan)
+    );
+    animation: spin 6s linear infinite;
+    // 用遮罩挖空中心，只留 2px 光环
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-1);
+    // 本地资源，修掉原站 http://r.photo.store.qq.com 外链造成的混合内容拦截
+  }
+
+  &:hover::before {
+    animation-duration: 1.6s;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 竖排 wordmark：占据轨道中部空白，强化「轨迹」纵深感
+.rail-wordmark {
+  margin: auto 0;
+  padding: 24px 0;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  user-select: none;
+  transition: color var(--dur-base) ease, text-shadow var(--dur-base) ease;
+
+  .rail:hover & {
+    color: rgba(0, 240, 255, 0.5);
+    text-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+  }
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.social-link {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--text-lo);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-spring);
+
+  // 不在此写 fill / stroke：由 Icon.astro 按图标类型给出（github 为填充，其余为描边）。
+  // CSS 会覆盖 SVG 呈现属性，这里若强设 fill 会把描边图标糊成实心块。
+  svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  &:hover {
+    color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.07);
+    border-color: var(--line);
+    transform: translateY(-2px);
+    text-shadow: none;
+  }
+}
+
+// ---------- 中间索引栏 ----------
+.index-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 var(--list-width);
+  width: var(--list-width);
+  height: 100%;
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(10, 14, 23, 0.97));
+  border-right: 1px solid var(--line-soft);
+  backdrop-filter: blur(6px);
+}
+
+.index-head {
+  flex: 0 0 auto;
+  padding: 24px 20px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.index-eyebrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+
+  .count {
+    color: var(--neon-cyan);
+    font-size: 11px;
+  }
+}
+
+// 搜索框：聚焦时霓虹描边 + 内辉光
+.search-box {
+  position: relative;
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    width: 14px;
+    height: 14px;
+    transform: translateY(-50%);
+    fill: none;
+    stroke: var(--text-faint);
+    stroke-width: 2;
+    pointer-events: none;
+    transition: stroke var(--dur-fast) ease;
+  }
+
+  input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px 0 34px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-hi);
+    background: rgba(0, 0, 0, 0.34);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+
+    &::placeholder {
+      color: var(--text-faint);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--line-strong);
+      box-shadow: inset 0 0 14px rgba(0, 240, 255, 0.09), 0 0 12px rgba(0, 240, 255, 0.16);
+
+      & + svg,
+      ~ svg {
+        stroke: var(--neon-cyan);
+      }
+    }
+  }
+}
+
+// 分类筛选 chips
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.chip {
+  padding: 4px 11px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-lo);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+
+  &:hover {
+    color: var(--neon-cyan);
+    border-color: var(--line);
+  }
+
+  &.is-active {
+    color: var(--void);
+    background: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+    font-weight: 700;
+  }
+}
+
+// ---------- 文章列表 ----------
+.post-list {
+  flex: 1 1 auto;
+  padding: 6px 0 24px;
+  overflow-y: auto;
+  @include neon-scrollbar(4px);
+}
+
+.post-item {
+  position: relative;
+  display: block;
+  padding: 13px 20px 13px 22px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.045);
+  transition: background var(--dur-fast) ease, opacity var(--dur-base) ease,
+    transform var(--dur-base) var(--ease-out-expo);
+
+  // 左缘霓虹竖条：hover / 当前页时生长
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 2px;
+    height: 0;
+    background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+    transform: translateY(-50%);
+    transition: height var(--dur-base) var(--ease-out-expo);
+  }
+
+  &:hover,
+  &.is-current {
+    background: rgba(0, 240, 255, 0.045);
+
+    &::before {
+      height: 72%;
+    }
+
+    .post-item-title {
+      color: var(--text-hi);
+      transform: translateX(3px);
+    }
+  }
+
+  &.is-current .post-item-title {
+    color: var(--neon-cyan);
+  }
+
+  // 被筛选隐藏
+  &[hidden] {
+    display: none;
+  }
+}
+
+.post-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+.post-item-cat {
+  padding: 1px 6px;
+  color: var(--neon-purple);
+  border: 1px solid rgba(168, 85, 247, 0.32);
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+.post-item-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--text-mid);
+  transition: color var(--dur-fast) ease, transform var(--dur-base) var(--ease-out-expo);
+
+  // 长标题最多两行，避免列表节奏被单条撑破
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty-hint {
+  padding: 40px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  text-align: center;
+}

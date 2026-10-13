@@ -1,0 +1,74 @@
+# ============================================================================
+# GitHub Pages 部署：Astro 构建产物直传
+#
+# 为什么不用 GitHub 自带的 Jekyll 构建（Settings → Pages → Deploy from a branch）：
+# 那条链路走 ghcr.io/actions/jekyll-build-pages 镜像，本仓在 commit 7ef9738 上
+# 触发过一次，`Checkout` 步骤直接失败，导致 Build 与 deploy 全部 skip，
+# 站点停留在 2019-06-14 的旧产物上。改为自建 Actions 后构建过程完全可控。
+#
+# 启用前提（只能在仓库网页上操作一次）：
+#   Settings → Pages → Build and deployment → Source 选 `GitHub Actions`
+# 若 Source 仍是 `Deploy from a branch`，本工作流上传的 artifact 不会被发布。
+# ============================================================================
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    # 本仓默认分支是 master，不是 main
+    branches: [master]
+  # 允许在 Actions 页面手动触发，便于排查部署问题而不必造一个空 commit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时刻只跑一条部署流水线；不取消进行中的任务，避免产物与部署错配
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Astro site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # 与本地开发版本对齐（Astro 5 要求 Node 18.17+ 或 20+）
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        # 用 ci 而非 install：严格按 package-lock.json 装，保证构建可复现
+        run: npm ci
+
+      - name: Type check
+        # 只校验不阻断历史遗留告警：execCommand 的 deprecated 是刻意保留的降级分支
+        run: npm run check
+        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

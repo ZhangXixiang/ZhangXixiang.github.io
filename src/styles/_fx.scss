@@ -1,0 +1,250 @@
+@use 'tokens' as *;
+
+// ============================================================================
+// 增强特效层样式 —— 由 src/scripts/fx.ts 驱动
+//
+// 四项：标题解码光标 / Hero 鼠标视差 / 霓虹光标拖尾 / 卡片描边扫光。
+//
+// 两条实现约束：
+//  1. **视差一律用独立的 `translate` 属性，不用 `transform`。**
+//     Hero 各层都挂着 `animation: fadeUp ... both`，该动画写的是 transform，
+//     填充终态会覆盖掉我们后加的 transform；`translate` 与 `transform` 是两套
+//     互不干扰的属性，因此可以安全叠加，也让 _hero.scss 保持零改动。
+//  2. **每项都有静态降级。** 不支持 `translate` / `@property` 的旧浏览器
+//     只会失去动画，不会破版；脚本层还会在 prefers-reduced-motion 下整体跳过。
+// ============================================================================
+
+// 拖尾节点的序号，用于尺寸与透明度衰减；注册为 number 让 calc 运算更稳
+@property --n {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+
+// 描边扫光的旋转角。注册为 angle 类型后 conic-gradient 的 from 角度才可插值；
+// 未注册时该变量退化为普通 token，角度不变化但透明度动画仍在，表现为「边框闪一下」
+@property --beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+// ---- 1. 标题解码 ----
+.hero-title {
+  // 解码期间必须关掉 CSS 故障重影：伪元素 content 取的是 data-glitch 完整标题，
+  // 与正在逐字解码的正文不一致，同时显示会出现「乱码 + 完整标题」的双重残影
+  &.is-typing::before,
+  &.is-typing::after {
+    display: none;
+  }
+}
+
+// 解码进度光标：一根霓虹竖条，落在已解码文本的右侧
+.tw-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.86em;
+  margin-left: 6px;
+  vertical-align: -0.06em;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.85);
+  animation: caretBlink 0.72s steps(1) infinite;
+}
+
+// 解码完成后光标淡出并脱离布局，避免标题右侧留一块常驻亮斑
+.hero-title.is-decoded .tw-caret {
+  animation: caretOut 0.42s ease forwards;
+}
+
+@keyframes caretBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.1; }
+}
+
+@keyframes caretOut {
+  to { opacity: 0; width: 0; margin-left: 0; }
+}
+
+// ---- 2. Hero 鼠标视差 ----
+// --mx / --my 由 fx.ts 写入，取值 -1 ~ 1，中心为 0。
+// 幅度按景深分配：越靠前的层跟随越多，地平线几乎不动，形成层次差。
+.hero {
+  // 未注入变量时（无 JS / 触屏 / reduced-motion）全部为 0，即静态终态
+  --mx: 0;
+  --my: 0;
+}
+
+.hero-badge {
+  translate: calc(var(--mx) * 16px) calc(var(--my) * 9px);
+}
+
+.hero-title {
+  translate: calc(var(--mx) * 11px) calc(var(--my) * 6px);
+}
+
+.hero-subtitle {
+  translate: calc(var(--mx) * 9px) calc(var(--my) * 5px);
+}
+
+.hero-desc {
+  translate: calc(var(--mx) * 6px) calc(var(--my) * 3px);
+}
+
+// 轨迹线反向位移：与前景标题相向而动，纵深差最明显的一层
+.hero-trail {
+  translate: calc(var(--mx) * -16px) calc(var(--my) * -9px);
+}
+
+.hero-stats {
+  translate: calc(var(--mx) * 8px) calc(var(--my) * 5px);
+}
+
+// 透视网格地平线属于最远景，只给极小幅度，动多了会显得地面在漂
+.hero-grid {
+  translate: calc(var(--mx) * -6px) calc(var(--my) * -3px);
+}
+
+// 各层位移要有「跟随感」而不是硬贴指针，加一点过渡把抖动抹平
+.hero-badge,
+.hero-title,
+.hero-subtitle,
+.hero-desc,
+.hero-trail,
+.hero-stats,
+.hero-grid {
+  transition: translate 0.42s var(--ease-out-expo);
+}
+
+// ---- 3. 霓虹光标拖尾 ----
+// 叠在内容之上、入场遮罩与彩带画布之下（那两者是 9999 / 10000）
+#cursor-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+
+  &.is-on {
+    opacity: 1;
+  }
+}
+
+// 主环。定位由 JS 写 transform，居中用负 margin，两者不互相覆盖
+.cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 1px solid rgba(0, 240, 255, 0.72);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4), inset 0 0 10px rgba(0, 240, 255, 0.16);
+  transition: width 0.24s var(--ease-out-expo), height 0.24s var(--ease-out-expo),
+    margin 0.24s var(--ease-out-expo), border-color 0.24s ease, background-color 0.24s ease;
+
+  // 悬停可交互元素：环放大并染上通过态绿色，提示「这里能点」
+  &.is-hot {
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+    border-color: rgba(0, 255, 136, 0.7);
+    background-color: rgba(0, 255, 136, 0.06);
+    box-shadow: 0 0 18px rgba(0, 255, 136, 0.35), inset 0 0 14px rgba(0, 255, 136, 0.14);
+  }
+
+  // 按下瞬间收紧，给点击一个即时的力学反馈
+  &.is-press {
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 16px rgba(255, 0, 110, 0.5);
+  }
+}
+
+// 拖尾节点：尺寸、透明度随序号 --n 衰减，色相逐节偏移，青→紫的余晖
+.cursor-trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(7px - var(--n) * 0.55px);
+  height: calc(7px - var(--n) * 0.55px);
+  margin: calc((7px - var(--n) * 0.55px) / -2) 0 0 calc((7px - var(--n) * 0.55px) / -2);
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  opacity: calc(0.5 - var(--n) * 0.055);
+  filter: hue-rotate(calc(var(--n) * 14deg)) blur(0.3px);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.55);
+}
+
+// ---- 4. 卡片描边扫光 ----
+// 独立元素而非伪元素：.post-card 的 ::before / ::after 已被左上折角与
+// hover 底部扫光占用，这里再抢会互相覆盖。
+.card-beam {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    rgba(0, 240, 255, 0.12) 16deg,
+    rgba(0, 240, 255, 0.95) 44deg,
+    rgba(168, 85, 247, 0.95) 76deg,
+    rgba(168, 85, 247, 0.12) 106deg,
+    transparent 130deg
+  );
+  // 双层 mask 相减只留 1px 边框环，内部镂空，光带不会糊住卡片内容
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// 进视口与 hover 都通过加/摘这个类触发，动画播完由 fx.ts 摘类，不做常驻循环
+.post-card.beam-run .card-beam {
+  animation: beamSpin 2.1s var(--ease-out-expo) 1 both;
+}
+
+@keyframes beamSpin {
+  0% { opacity: 0; --beam-angle: 0deg; }
+  10% { opacity: 1; }
+  72% { opacity: 1; }
+  100% { opacity: 0; --beam-angle: 400deg; }
+}
+
+// ---- 无障碍与降级 ----
+// _base.scss 的全局规则已把动画时长收敛到 0.01ms，这里再显式关掉视差过渡
+// 与光标层，确保减少动态效果时没有任何东西在跟着指针跑
+@media (prefers-reduced-motion: reduce) {
+  .hero-badge,
+  .hero-title,
+  .hero-subtitle,
+  .hero-desc,
+  .hero-trail,
+  .hero-stats,
+  .hero-grid {
+    transition: none;
+    translate: 0 0;
+  }
+
+  #cursor-fx {
+    display: none;
+  }
+
+  .post-card.beam-run .card-beam {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+// 触屏设备没有指针悬停概念，光标层直接不渲染，省掉一个固定定位的合成层
+@media (hover: none), (pointer: coarse) {
+  #cursor-fx {
+    display: none;
+  }
+}

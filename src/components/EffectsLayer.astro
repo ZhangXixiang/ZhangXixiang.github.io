@@ -1,0 +1,17 @@
+---
+/**
+ * 入场特效层：粒子背景 + 彩带画布 + 欢迎遮罩。
+ *
+ * 纯结构，动画由 src/scripts/particles.ts 与 confetti.ts 驱动。
+ * 尊重系统「减少动态效果」偏好：脚本层会检测 prefers-reduced-motion 并跳过。
+ */
+---
+
+<canvas id="particles-canvas" aria-hidden="true"></canvas>
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+<div id="welcome-overlay" aria-hidden="true">
+  <div class="welcome-title">WELCOME</div>
+  <div class="welcome-subtitle">Zhang Xixiang · Cross-City Trail</div>
+  <div class="welcome-bar"></div>
+</div>

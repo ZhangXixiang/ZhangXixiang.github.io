@@ -1,0 +1,77 @@
+---
+/**
+ * 分类页：/category/tech.html 等。
+ *
+ * 只为「真的有文章」的分类生成页面，避免产出空列表的死页；
+ * 分类顺序与展示名统一取自 CATEGORY_ORDER，不在这里重复登记。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import Icon from '../../components/Icon.astro';
+import { CATEGORY_ORDER, ARCHIVE_URL, catUrl } from '../../data/site';
+import { getAllPosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return CATEGORY_ORDER.map((cat) => ({
+    params: { slug: cat.slug },
+    props: {
+      cat,
+      posts: posts.filter((p) => p.catSlug === cat.slug),
+      total: posts.length,
+    },
+  })).filter((route) => route.props.posts.length > 0);
+}
+
+interface Props {
+  cat: (typeof CATEGORY_ORDER)[number];
+  posts: import('../../lib/posts').PostView[];
+  total: number;
+}
+
+const { cat, posts, total } = Astro.props;
+const latest = posts[0];
+---
+
+<BaseLayout
+  title={`${cat.zh} · ${cat.en}`}
+  description={`「${cat.zh}」分类下的全部 ${posts.length} 篇文章。`}
+>
+  <header class="page-head">
+    <div class="container">
+      <span class="page-eyebrow">// Trail Segment · {cat.en}</span>
+      <h1 class="page-title">{cat.zh}</h1>
+      <p class="page-sub">
+        {posts.length} / {total} 篇
+        {latest ? ` · 最近更新 ${latest.dateLabel}` : ''}
+      </p>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <div class="container">
+      <!-- 同分类内的其它入口，方便横向跳转而不必回首页 -->
+      <nav class="cat-switch" aria-label="切换分类">
+        {
+          CATEGORY_ORDER.map((c) => (
+            <a
+              class={`cat-switch-link${c.slug === cat.slug ? ' is-active' : ''}`}
+              href={catUrl(c.slug)}
+              aria-current={c.slug === cat.slug ? 'page' : undefined}
+            >
+              {c.zh}
+            </a>
+          ))
+        }
+        <a class="cat-switch-link" href={ARCHIVE_URL}>
+          归档
+          <Icon name="arrowUpRight" />
+        </a>
+      </nav>
+
+      <div class="card-grid">
+        {posts.map((p, i) => <PostCard post={p} index={i} />)}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

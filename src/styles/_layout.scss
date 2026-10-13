@@ -1,0 +1,144 @@
+@use 'tokens' as *;
+@use 'base' as *;
+
+// ============================================================================
+// 三栏骨架：左侧图标轨（96px）+ 中间文章索引（344px）+ 右侧主内容
+//
+// 沿用原 3-Jekyll 主题的三栏结构与「主区域独立滚动」交互，
+// 这是该站最有辨识度的部分；视觉层整体重做。
+// ============================================================================
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  width: var(--sidebar-width);
+  height: 100%;
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+
+#main {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  margin-left: var(--sidebar-width);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  @include neon-scrollbar(7px);
+
+  // 主区左缘的青紫渐变描边，把三栏在视觉上缝合起来
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--neon-cyan) 12%,
+      var(--neon-purple) 55%,
+      transparent 92%
+    );
+    opacity: 0.45;
+    pointer-events: none;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: var(--post-max-width);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+// ---- 顶部阅读进度条（替代已失效的 NProgress）----
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  z-index: 900;
+  width: calc(100% - var(--sidebar-width));
+  height: 2px;
+  pointer-events: none;
+  background: transparent;
+
+  &::after {
+    content: '';
+    display: block;
+    width: var(--progress, 0%);
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-green));
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+    transition: width 0.08s linear;
+  }
+}
+
+// ---- 移动端菜单按钮 ----
+#menu {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 1001;
+  display: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(10, 14, 23, 0.86);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+
+  &:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--glow-cyan);
+  }
+
+  // 三横线 → 关闭态变 X
+  span,
+  span::before,
+  span::after {
+    position: absolute;
+    left: 12px;
+    width: 20px;
+    height: 2px;
+    background: var(--neon-cyan);
+    transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-fast) ease;
+  }
+
+  span {
+    top: 21px;
+  }
+
+  span::before,
+  span::after {
+    content: '';
+    left: 0;
+  }
+
+  span::before {
+    top: -6px;
+  }
+
+  span::after {
+    top: 6px;
+  }
+
+  &.open span {
+    background: transparent;
+
+    &::before {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    &::after {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+  }
+}

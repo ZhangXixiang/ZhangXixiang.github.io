@@ -1,0 +1,184 @@
+@use 'tokens' as *;
+
+// ============================================================================
+// 响应式 —— 侧栏在窄屏转为抽屉
+// ============================================================================
+
+// 抽屉遮罩（移动端）
+#scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: rgba(5, 7, 13, 0.72);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-base) ease, visibility var(--dur-base) ease;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@media (max-width: $bp-hide-sidebar) {
+  #sidebar {
+    width: var(--sidebar-width);
+    box-shadow: 24px 0 60px rgba(0, 0, 0, 0.6);
+    transform: translateX(-100%);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  #main {
+    margin-left: 0;
+  }
+
+  #reading-progress {
+    left: 0;
+    width: 100%;
+  }
+
+  #menu {
+    display: block;
+  }
+
+  .container {
+    padding: 0 26px;
+  }
+
+  .post {
+    padding-top: 64px;
+  }
+}
+
+@media (max-width: $bp-mobile) {
+  :root {
+    --rail-width: 78px;
+    --list-width: min(320px, 84vw);
+  }
+
+  .container {
+    padding: 0 18px;
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 74px 18px 92px;
+  }
+
+  .hero-badge {
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+
+  .hero-stats {
+    gap: 10px;
+  }
+
+  .stat {
+    min-width: 104px;
+    padding: 11px 16px;
+  }
+
+  .stat-num {
+    font-size: 1.35rem;
+  }
+
+  .rail-wordmark {
+    display: none;
+  }
+
+  .post-body {
+    font-size: 16px;
+    line-height: 1.85;
+
+    h2 {
+      font-size: 1.3rem;
+      margin-top: 40px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 34px;
+    }
+
+    // 窄屏允许行内代码换行，避免撑破容器
+    code:not(pre code) {
+      white-space: normal;
+    }
+
+    pre.astro-code {
+      font-size: 12.5px;
+      padding: 14px 12px;
+    }
+
+    blockquote {
+      padding-left: 18px;
+      font-size: 15px;
+    }
+  }
+
+  // 上下篇改单列，标题不再被挤压
+  .post-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .post-nav-link.spacer {
+    display: none;
+  }
+
+  #post-toc-menu {
+    right: 14px;
+    bottom: 18px;
+  }
+}
+
+@media (max-width: $bp-narrow) {
+  :root {
+    --list-width: 88vw;
+  }
+
+  .hero-title {
+    font-size: 1.85rem;
+  }
+
+  .hero-subtitle {
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+  }
+
+  .post-title {
+    font-size: 1.35rem;
+  }
+}
+
+// 触屏设备不需要 hover 态残留
+@media (hover: none) {
+  .post-item:hover {
+    background: transparent;
+
+    .post-item-title {
+      transform: none;
+    }
+  }
+
+  .stat:hover {
+    transform: none;
+  }
+}
+
+// 横向：确保超宽屏正文不被拉成长行影响可读性
+@media (min-width: 1600px) {
+  :root {
+    --post-max-width: 840px;
+    --list-width: 380px;
+  }
+}

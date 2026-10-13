@@ -1,0 +1,363 @@
+@use 'tokens' as *;
+
+// ============================================================================
+// Hero —— 首页主视觉
+//
+// 母题：城市数据荒原上的一条越野轨迹。
+// 透视网格地平线提供纵深，自绘的高程剖面线（stroke-dashoffset 描画）
+// 是站点标题《穿越整个城市的越野跑》的直接视觉转译。
+// ============================================================================
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 88px 24px 120px;
+  text-align: center;
+  overflow: hidden;
+}
+
+// ---- 透视网格地平线 ----
+.hero-grid {
+  position: absolute;
+  bottom: -6%;
+  left: -25%;
+  z-index: -1;
+  width: 150%;
+  height: 52%;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.18) 1px, transparent 1px);
+  background-size: 100% 42px, 42px 100%;
+  transform: perspective(340px) rotateX(62deg);
+  transform-origin: bottom center;
+  // 向远处淡出，避免网格生硬截断
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 88%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 88%);
+  animation: gridFlow 5.5s linear infinite;
+  opacity: 0.75;
+}
+
+@keyframes gridFlow {
+  to {
+    background-position: 0 42px, 0 0;
+  }
+}
+
+// 地平线辉光
+.hero-horizon {
+  position: absolute;
+  bottom: 46%;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.55);
+  opacity: 0.6;
+}
+
+// ---- 眉标 ----
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 16px;
+  margin-bottom: 30px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid rgba(0, 240, 255, 0.32);
+  border-radius: 2px;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.18), inset 0 0 16px rgba(0, 240, 255, 0.05);
+  animation: pulseGlow 3.4s ease-in-out infinite, fadeUp 0.8s var(--ease-out-expo) both;
+
+  // 状态点：呼吸
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    box-shadow: 0 0 8px var(--neon-green);
+    animation: blink 2s ease-in-out infinite;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.18), inset 0 0 16px rgba(0, 240, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.34), inset 0 0 22px rgba(0, 240, 255, 0.1);
+  }
+}
+
+// ---- 主标题：故障效果 ----
+.hero-title {
+  position: relative;
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 6.4vw, 4.4rem);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: 0.02em;
+  color: var(--text-hi);
+  animation: fadeUp 0.9s 0.1s var(--ease-out-expo) both;
+
+  // 青紫渐变文字
+  background: linear-gradient(115deg, #fff 8%, var(--neon-cyan) 46%, var(--neon-purple) 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  // 故障双层：粉/青错位重影，靠 data-text 伪元素实现
+  &[data-glitch]::before,
+  &[data-glitch]::after {
+    content: attr(data-glitch);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  &[data-glitch]::before {
+    color: var(--neon-pink);
+    animation: glitchA 4.6s infinite steps(1);
+  }
+
+  &[data-glitch]::after {
+    color: var(--neon-cyan);
+    animation: glitchB 4.6s infinite steps(1);
+  }
+}
+
+@keyframes glitchA {
+  0%, 88%, 100% { opacity: 0; transform: translate(0); }
+  89% { opacity: 0.75; transform: translate(-3px, 1px); clip-path: inset(12% 0 62% 0); }
+  91% { opacity: 0.6; transform: translate(3px, -2px); clip-path: inset(58% 0 18% 0); }
+  93% { opacity: 0; }
+  95% { opacity: 0.5; transform: translate(-2px, 0); clip-path: inset(34% 0 44% 0); }
+  96% { opacity: 0; }
+}
+
+@keyframes glitchB {
+  0%, 88%, 100% { opacity: 0; transform: translate(0); }
+  89% { opacity: 0.7; transform: translate(3px, -1px); clip-path: inset(66% 0 12% 0); }
+  91% { opacity: 0.55; transform: translate(-3px, 2px); clip-path: inset(8% 0 74% 0); }
+  93% { opacity: 0; }
+  95% { opacity: 0.45; transform: translate(2px, 1px); clip-path: inset(48% 0 30% 0); }
+  96% { opacity: 0; }
+}
+
+// ---- 英文副标 ----
+.hero-subtitle {
+  margin: 0 0 26px;
+  font-family: var(--font-display);
+  font-size: clamp(0.66rem, 1.7vw, 0.92rem);
+  font-weight: 500;
+  letter-spacing: 0.56em;
+  text-indent: 0.56em; // 抵消末字符间距造成的视觉偏移
+  text-transform: uppercase;
+  color: rgba(0, 240, 255, 0.62);
+  animation: fadeUp 0.9s 0.2s var(--ease-out-expo) both;
+}
+
+.hero-desc {
+  max-width: 620px;
+  margin: 0 0 34px;
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--text-mid);
+  animation: fadeUp 0.9s 0.3s var(--ease-out-expo) both;
+}
+
+// ---- 越野轨迹高程剖面：自绘 ----
+.hero-trail {
+  position: relative;
+  width: min(760px, 92vw);
+  margin: 0 0 38px;
+  animation: fadeUp 1s 0.4s var(--ease-out-expo) both;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  // 轨迹线描画动画
+  .trail-line {
+    fill: none;
+    stroke: url(#trailGradient);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.7));
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    animation: drawTrail 3.4s 0.55s var(--ease-out-expo) forwards;
+  }
+
+  // 线下方填充：描画完成后再淡入
+  .trail-fill {
+    fill: url(#trailFill);
+    opacity: 0;
+    animation: fadeIn 1.4s 2.6s ease forwards;
+  }
+
+  // 轨迹节点（对应文章分类）
+  .trail-node {
+    fill: var(--void);
+    stroke: var(--neon-green);
+    stroke-width: 2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: nodePop 0.5s var(--ease-spring) forwards;
+
+    &:hover {
+      stroke: var(--neon-cyan);
+      filter: drop-shadow(0 0 8px var(--neon-cyan));
+    }
+  }
+
+  .trail-node-halo {
+    fill: none;
+    stroke: rgba(0, 255, 136, 0.4);
+    stroke-width: 1;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: haloPulse 2.8s ease-out infinite;
+  }
+
+  .trail-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    fill: var(--text-faint);
+    text-transform: uppercase;
+  }
+}
+
+@keyframes drawTrail {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes nodePop {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes haloPulse {
+  0% { opacity: 0.55; transform: scale(1); }
+  70% { opacity: 0; transform: scale(2.6); }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+
+// ---- 数据条 ----
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  animation: fadeUp 1s 0.5s var(--ease-out-expo) both;
+}
+
+.stat {
+  min-width: 128px;
+  padding: 14px 22px;
+  text-align: center;
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  transition: transform var(--dur-base) var(--ease-out-expo), box-shadow var(--dur-base) ease,
+    border-color var(--dur-base) ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 240, 255, 0.42);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.16);
+  }
+}
+
+.stat-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+}
+
+.stat-label {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+// ---- 向下滚动提示 ----
+.scroll-cue {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transform: translateX(-50%);
+  animation: fadeUp 1s 1.1s var(--ease-out-expo) both;
+
+  // 下滑小箭头
+  &::after {
+    content: '';
+    width: 1px;
+    height: 34px;
+    background: linear-gradient(180deg, var(--neon-cyan), transparent);
+    animation: cueDrop 2s ease-in-out infinite;
+  }
+}
+
+@keyframes cueDrop {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.3; transform-origin: top; }
+  50% { transform: scaleY(1); opacity: 1; transform-origin: top; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}

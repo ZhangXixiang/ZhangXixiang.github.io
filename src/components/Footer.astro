@@ -1,0 +1,86 @@
+---
+/**
+ * 全站页脚。
+ *
+ * 只放不会过期的信息：版权区间、许可协议、分类入口与订阅入口。
+ * 版权起始年取自最早一篇文章的年份，避免每年手工改。
+ */
+import Icon from './Icon.astro';
+import { SITE, SOCIALS, CATEGORY_ORDER, catUrl, ARCHIVE_URL } from '../data/site';
+import type { PostView } from '../lib/posts';
+
+interface Props {
+  posts: PostView[];
+}
+
+const { posts } = Astro.props;
+
+const firstYear = posts.length
+  ? Math.min(...posts.map((p) => Number(p.year)))
+  : new Date().getFullYear();
+const thisYear = new Date().getFullYear();
+// 同一年时只显示一个年份，避免出现「© 2026–2026」
+const years = firstYear === thisYear ? `${thisYear}` : `${firstYear}–${thisYear}`;
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="footer-mark">{SITE.wordmark}</span>
+        <p class="footer-desc">{SITE.description}</p>
+        <nav class="footer-social" aria-label="社交与订阅">
+          {
+            SOCIALS.map((s) => (
+              <a
+                class="footer-social-link"
+                href={s.href}
+                aria-label={s.label}
+                title={s.label}
+                target={s.external ? '_blank' : undefined}
+                rel={s.external ? 'noopener noreferrer me' : undefined}
+              >
+                <Icon name={s.icon} />
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+
+      <nav class="footer-col" aria-label="分类导航">
+        <span class="footer-col-title">// Categories</span>
+        <ul>
+          {
+            CATEGORY_ORDER.map((c) => (
+              <li>
+                <a href={catUrl(c.slug)}>{c.zh}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="站点导航">
+        <span class="footer-col-title">// Navigate</span>
+        <ul>
+          <li><a href="/">首页</a></li>
+          <li><a href={ARCHIVE_URL}>全部归档</a></li>
+          <li><a href="/rss.xml">RSS 订阅</a></li>
+          <li>
+            <a href="https://github.com/zhangxixiang" target="_blank" rel="noopener noreferrer">
+              GitHub 仓库
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {years} {SITE.author}</span>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <a href={SITE.license.url} target="_blank" rel="noopener noreferrer">{SITE.license.name}</a>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <span>Powered by Astro</span>
+    </div>
+  </div>
+</footer>

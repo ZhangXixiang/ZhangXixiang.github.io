@@ -1,0 +1,57 @@
+---
+/**
+ * 404 页面。
+ *
+ * GitHub Pages 只认站点根目录的 404.html，Astro 会把本文件产出到 dist/404.html。
+ * 这里给出几条最可能的去处，而不是只丢一句「页面不存在」。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, CATEGORY_ORDER, ARCHIVE_URL, catUrl } from '../data/site';
+import { getAllPosts } from '../lib/posts';
+
+const posts = await getAllPosts();
+// 放最近 5 篇作为兜底推荐，命中「链接打错了但想继续读」的场景
+const latest = posts.slice(0, 5);
+---
+
+<BaseLayout title="404 · 信号丢失" description="页面不存在，回到越野轨迹上。" withFooter={true}>
+  <section class="notfound">
+    <div class="container">
+      <span class="code" aria-hidden="true">404</span>
+      <h1>信号丢失</h1>
+      <p>这条轨迹不在地图上。可能是链接写错了，也可能是文章被移动过。</p>
+
+      <div class="nf-actions">
+        <a class="nf-btn is-primary" href="/">
+          <Icon name="trail" />
+          回到首页
+        </a>
+        <a class="nf-btn" href={ARCHIVE_URL}>
+          <Icon name="list" />
+          全部归档
+        </a>
+      </div>
+
+      <div class="nf-latest">
+        <span class="nf-latest-title">// 或者读点这些</span>
+        <ul>
+          {latest.map((p) => (
+            <li>
+              <a href={p.url}>{p.title}</a>
+              <span class="nf-latest-date">{p.dateLabel}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <nav class="nf-cats" aria-label="分类导航">
+        {CATEGORY_ORDER.map((c) => <a href={catUrl(c.slug)}>{c.zh}</a>)}
+      </nav>
+
+      <p class="nf-mail">
+        找不到想要的？<a href={`mailto:${SITE.email}`}>发邮件告诉我</a>。
+      </p>
+    </div>
+  </section>
+</BaseLayout>

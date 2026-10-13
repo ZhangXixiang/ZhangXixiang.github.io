@@ -1,0 +1,166 @@
+---
+/**
+ * 全站基础布局。
+ *
+ * 承担四件事：
+ *  1. `<head>` —— 字体、SEO / OpenGraph / JSON-LD、RSS、favicon；
+ *  2. 骨架 —— 特效层（粒子 / 彩带 / 欢迎遮罩）+ 侧栏 + 主区，沿用原 3-Jekyll 主题的三栏结构；
+ *  3. 视图过渡 —— Astro ClientRouter 取代原站的 jQuery pjax，侧栏 persist 不重绘；
+ *  4. 客户端脚本入口 —— ui.ts 内部监听 astro:page-load，导航后自动重新绑定页面级交互。
+ */
+import { ClientRouter } from 'astro:transitions';
+import '../styles/index.scss';
+
+// 拉丁子集自托管：Orbitron（标题）/ Chakra Petch（正文）/ JetBrains Mono（代码）
+// 中文不下载字体，走系统 CJK 栈，避免为几个汉字拖入 MB 级字体文件
+import '@fontsource-variable/orbitron/wght.css';
+import '@fontsource/chakra-petch/latin-400.css';
+import '@fontsource/chakra-petch/latin-500.css';
+import '@fontsource/chakra-petch/latin-600.css';
+import '@fontsource/chakra-petch/latin-700.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
+
+import EffectsLayer from '../components/EffectsLayer.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../data/site';
+import { getAllPosts } from '../lib/posts';
+
+interface Props {
+  /** 页面主标题；首页传空则只用站名 */
+  title?: string;
+  description?: string;
+  /** article 用于文章页，影响 OG type 与 JSON-LD */
+  type?: 'website' | 'article';
+  /** 文章发布时间 ISO 字符串，仅 article 用 */
+  publishedTime?: string;
+  /** body 附加 class，如 has-toc */
+  bodyClass?: string;
+  /** 是否渲染页脚（首页 Hero 之后统一渲染，故默认 true） */
+  withFooter?: boolean;
+}
+
+const {
+  title = '',
+  description = SITE.description,
+  type = 'website',
+  publishedTime,
+  bodyClass = '',
+  withFooter = true,
+} = Astro.props;
+
+const posts = await getAllPosts();
+/**
+ * 规范链接要指向真实可访问的 URL。
+ *
+ * `build.format: 'file'` 下，路由 `/category/tech` 的实际产物是 `category/tech.html`，
+ * 所以除首页外都要补 `.html`，否则 canonical 会指向 GitHub Pages 上不保证存在的路径。
+ */
+const pathname = Astro.url.pathname;
+const servedPath = pathname === '/' ? '/' : `${pathname.replace(/\/+$/, '')}.html`;
+const canonical = new URL(servedPath, Astro.site);
+const fullTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} · ${SITE.titleEn}`;
+
+// JSON-LD：让搜索引擎正确识别个人博客与文章
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        datePublished: publishedTime,
+        author: { '@type': 'Person', name: SITE.author },
+        mainEntityOfPage: canonical.href,
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: SITE.title,
+        description,
+        url: canonical.href,
+        author: { '@type': 'Person', name: SITE.author },
+      };
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--
+      必须在首屏绘制前执行：给 <html> 打上 js 标记。
+      滚动揭示的隐藏态只在 html.js 下生效，脚本没跑起来时内容保持可见，避免白屏。
+    -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE.author} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonical.href} />
+
+    <link rel="icon" href={SITE.favicon} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/avatar.jpg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.title}
+      href={new URL('/rss.xml', Astro.site).href}
+    />
+
+    <!-- Open Graph / Twitter：社交分享卡片 -->
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:type" content={type === 'article' ? 'article' : 'website'} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content="zh_CN" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- 主题色：移动端浏览器地址栏与页面霓虹主色一致 -->
+    <meta name="theme-color" content="#05070d" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <ClientRouter />
+  </head>
+
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">跳到主内容</a>
+
+    <EffectsLayer />
+
+    <!-- 顶部阅读进度（长文用）与导航过渡进度（全站用），两条互不干扰 -->
+    <div id="reading-progress" aria-hidden="true"></div>
+    <div id="nav-progress" aria-hidden="true"></div>
+
+    <Sidebar posts={posts} currentPath={Astro.url.pathname} transition:persist="sidebar" />
+
+    <!-- 窄屏抽屉遮罩：点击关闭侧栏 -->
+    <div id="scrim" aria-hidden="true"></div>
+
+    <button id="menu" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <span></span>
+    </button>
+
+    <main id="main" transition:name="main-content">
+      <slot />
+      {withFooter && <Footer posts={posts} />}
+    </main>
+
+    <!-- 覆盖层插槽：文章目录抽屉等 fixed 定位元素放这里，
+         避免落进 #main 这个滚动容器内部 -->
+    <slot name="overlay" />
+
+    <script>
+      // 副作用导入：ui.ts 自行监听 astro:page-load，导航后重绑页面级交互
+      import '../scripts/ui.ts';
+    </script>
+  </body>
+</html>

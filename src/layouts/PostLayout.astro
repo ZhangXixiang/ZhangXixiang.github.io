@@ -1,0 +1,149 @@
+---
+/**
+ * 文章页布局。
+ *
+ * 负责文章头（分类 / 标题 / 元信息 / 标签）、正文容器、分享行、上下篇导航，
+ * 以及右侧的目录抽屉。正文 Markdown 由页面层 render 后通过默认插槽传入。
+ *
+ * 目录只在存在 h2/h3 时渲染，并给 body 加 `has-toc` 让悬浮按钮显形；
+ * 高亮当前章节与滚动进度由 scripts/ui.ts 用 IntersectionObserver 驱动。
+ */
+import BaseLayout from './BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { fmtDate, catUrl } from '../data/site';
+import type { PostView } from '../lib/posts';
+
+/** render() 返回的标题结构，Astro 已为其生成 slug */
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  post: PostView;
+  headings: Heading[];
+  prev: PostView | null;
+  next: PostView | null;
+}
+
+const { post, headings, prev, next } = Astro.props;
+
+// 只取 h2 / h3 进目录：h1 是文章标题本身，h4+ 层级过深会让抽屉变得难读
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const hasToc = toc.length >= 2;
+
+const shareUrl = new URL(post.url, Astro.site).href;
+const shareText = `${post.title} | ${post.description}`;
+// 微博与 X 的分享端点；参数需 encodeURIComponent，标题里含中文与感叹号
+const weiboShare = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
+const xShare = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`;
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.description}
+  type="article"
+  publishedTime={post.isoDate}
+  bodyClass={hasToc ? 'has-toc' : ''}
+>
+  <article class="post">
+    <div class="container">
+      <header class="post-header">
+        <div class="post-cats">
+          <a class="cat-chip" href={catUrl(post.catSlug)}>{post.category}</a>
+          {post.tags.slice(0, 4).map((t) => <span class="cat-chip">{t}</span>)}
+        </div>
+
+        <h1 class="post-title">{post.title}</h1>
+
+        <div class="post-meta">
+          <span>
+            <Icon name="calendar" />
+            <time datetime={post.isoDate}>{fmtDate(post.date)}</time>
+          </span>
+          <span>
+            <Icon name="clock" />
+            约 {post.minutes} 分钟读完
+          </span>
+          {
+            post.keywords.length > 0 && (
+              <span>
+                <Icon name="terminal" />
+                {post.keywords.join(' / ')}
+              </span>
+            )
+          }
+        </div>
+      </header>
+
+      <div class="post-body" id="post-body">
+        <slot />
+      </div>
+
+      <footer class="post-footer">
+        <div class="share-row">
+          <span class="share-label">// Share</span>
+          <button type="button" class="share-btn" data-copy-link={shareUrl}>
+            <Icon name="link" />
+            复制链接
+          </button>
+          <a class="share-btn" href={weiboShare} target="_blank" rel="noopener noreferrer">
+            <Icon name="weibo" />
+            微博
+          </a>
+          <a class="share-btn" href={xShare} target="_blank" rel="noopener noreferrer">
+            <Icon name="share" />
+            X
+          </a>
+        </div>
+
+        <nav class="post-nav" aria-label="文章导航">
+          {
+            prev ? (
+              <a class="post-nav-link prev" href={prev.url} rel="prev">
+                <span class="nav-dir">← 上一篇</span>
+                <span class="nav-title">{prev.title}</span>
+              </a>
+            ) : (
+              <span class="post-nav-link spacer" aria-hidden="true" />
+            )
+          }
+          {
+            next ? (
+              <a class="post-nav-link next" href={next.url} rel="next">
+                <span class="nav-dir">下一篇 →</span>
+                <span class="nav-title">{next.title}</span>
+              </a>
+            ) : (
+              <span class="post-nav-link spacer" aria-hidden="true" />
+            )
+          }
+        </nav>
+      </footer>
+    </div>
+  </article>
+
+  {
+    hasToc && (
+      <div slot="overlay">
+        <aside id="post-toc" aria-label="本文目录" aria-hidden="true">
+          <span id="post-toc-title">// Contents</span>
+          <ul id="post-toc-list">
+            {toc.map((h) => (
+              <li class={h.depth === 3 ? 'toc-h3' : 'toc-h2'} data-toc-item={h.slug}>
+                <a href={`#${h.slug}`} class={h.depth === 3 ? 'toc-h3' : undefined}>
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        <button id="post-toc-menu" type="button" aria-label="打开本文目录" aria-expanded="false" aria-controls="post-toc">
+          <Icon name="list" />
+        </button>
+      </div>
+    )
+  }
+</BaseLayout>

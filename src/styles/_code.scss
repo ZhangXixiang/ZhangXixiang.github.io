@@ -1,0 +1,110 @@
+@use 'tokens' as *;
+@use 'base' as *;
+
+// ============================================================================
+// 代码块 —— Shiki 输出的 .astro-code
+//
+// 深色块 + 左缘霓虹条 + 顶部语言标签栏；复制按钮由 ui.ts 运行时注入。
+// ============================================================================
+
+.post-body {
+  .code-block {
+    position: relative;
+    margin: 30px 0;
+    border: 1px solid var(--line-soft);
+    border-left: 2px solid rgba(0, 240, 255, 0.45);
+    border-radius: 5px;
+    background: #0b1020;
+    box-shadow: 0 6px 26px rgba(0, 0, 0, 0.42);
+    transition: border-color var(--dur-base) ease, box-shadow var(--dur-base) ease;
+
+    &:hover {
+      border-left-color: var(--neon-cyan);
+      box-shadow: 0 6px 26px rgba(0, 0, 0, 0.42), 0 0 20px rgba(0, 240, 255, 0.09);
+    }
+  }
+
+  .code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, rgba(0, 240, 255, 0.07), transparent 60%);
+    border-bottom: 1px solid var(--line-soft);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .code-lang {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+    opacity: 0.85;
+
+    // 三个小圆点，呼应终端窗口
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 9px;
+      vertical-align: 1px;
+      border-radius: 50%;
+      background: var(--neon-pink);
+      box-shadow: 10px 0 0 var(--neon-amber), 20px 0 0 var(--neon-green);
+    }
+  }
+
+  .code-copy {
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-lo);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
+
+    &:hover {
+      color: var(--neon-green);
+      background: rgba(0, 255, 136, 0.08);
+      border-color: rgba(0, 255, 136, 0.4);
+    }
+
+    &.copied {
+      color: var(--neon-green);
+      border-color: rgba(0, 255, 136, 0.5);
+    }
+  }
+
+  pre.astro-code {
+    margin: 0;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.72;
+    background: transparent !important; // 覆盖 Shiki 内联背景，统一到 .code-block
+    border-radius: 0 0 4px 4px;
+    @include neon-scrollbar(6px);
+
+    code {
+      font-family: inherit;
+      // 中文注释不要等宽拉伸过度
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+
+    // 行号（若启用）
+    .line {
+      display: block;
+      min-height: 1.72em;
+    }
+  }
+}

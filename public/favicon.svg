@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Ù¹þŠÎhùÍ˜ñz• + R+Ø˜¿ + ÿr‚¹Ù… Hero Vb¿ -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e17"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="trail" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#00f0ff"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#00f0ff" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M10 47 21 25l11 12L44 15l10 32"
+        fill="none" stroke="url(#trail)" stroke-width="4.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="21" cy="25" r="4" fill="#00ff88"/>
+  <circle cx="44" cy="15" r="4" fill="#00ff88"/>
+</svg>

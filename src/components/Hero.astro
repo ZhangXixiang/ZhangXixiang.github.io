@@ -1,0 +1,118 @@
+---
+/**
+ * 首页主视觉 Hero。
+ *
+ * 把站点标题《穿越整个城市的越野跑》直译成画面：
+ * 透视网格地平线（城市数据荒原）+ 一条自绘的高程剖面轨迹线（越野跑），
+ * 轨迹上的节点对应文章的六个分类，描画动画在页面载入时跑一次。
+ *
+ * 全部为内联 SVG + CSS 动画，零运行时依赖、零图片请求；
+ * `prefers-reduced-motion` 下由 _base.scss 的全局规则统一收敛为静态终态。
+ */
+import { SITE, CATEGORY_ORDER } from '../data/site';
+import type { PostView } from '../lib/posts';
+
+interface Props {
+  /** 用于统计数字：文章总数与最早年份 */
+  posts: PostView[];
+}
+
+const { posts } = Astro.props;
+
+/** 高程剖面的控制点，x 与 NODES 对齐，y 越大越靠下（SVG 坐标系） */
+const PROFILE: Array<[number, number]> = [
+  [0, 152], [48, 140], [96, 132], [150, 104], [214, 84], [268, 108],
+  [332, 116], [390, 82], [450, 58], [508, 86], [568, 100], [624, 66],
+  [686, 46], [726, 60], [760, 54],
+];
+
+/** 轨迹节点：位置取自 PROFILE 上的转折点，标签为分类英文名 */
+const NODES: Array<{ x: number; y: number; label: string }> = [
+  { x: 96, y: 132, label: CATEGORY_ORDER[0].en },
+  { x: 214, y: 84, label: CATEGORY_ORDER[1].en },
+  { x: 332, y: 116, label: CATEGORY_ORDER[2].en },
+  { x: 450, y: 58, label: CATEGORY_ORDER[3].en },
+  { x: 568, y: 100, label: CATEGORY_ORDER[4].en },
+  { x: 686, y: 46, label: CATEGORY_ORDER[5].en },
+];
+
+const line = `M${PROFILE.map(([x, y]) => `${x},${y}`).join(' L')}`;
+const area = `${line} L760,180 L0,180 Z`;
+
+// 统计口径全部来自真实数据，不写死漂亮数字
+const total = posts.length;
+const firstYear = posts.length ? Math.min(...posts.map((p) => Number(p.year))) : new Date().getFullYear();
+const thisYear = new Date().getFullYear();
+const years = Math.max(1, thisYear - firstYear);
+const cats = new Set(posts.map((p) => p.catSlug)).size;
+---
+
+<section class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-horizon" aria-hidden="true"></div>
+
+  <span class="hero-badge">System Online · Personal Tech Blog</span>
+
+  <!--
+    aria-label 写死完整标题：scripts/fx.ts 的解码动画会把文本临时替换成乱码块，
+    没有这个标签的话读屏会念出一串几何字符。data-glitch 同时供 CSS 故障重影
+    与 JS 解码取用完整文本，两者共用一份，不重复维护。
+  -->
+  <h1 class="hero-title" data-glitch={SITE.title} aria-label={SITE.title}>{SITE.title}</h1>
+  <p class="hero-subtitle">{SITE.titleEn}</p>
+
+  <p class="hero-desc">{SITE.description}</p>
+
+  <!-- 越野轨迹高程剖面：装饰性图形，语义已由标题承载，故 aria-hidden -->
+  <div class="hero-trail" aria-hidden="true">
+    <svg viewBox="0 0 760 180" role="img">
+      <defs>
+        <linearGradient id="trailGradient" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#00f0ff"></stop>
+          <stop offset="55%" stop-color="#a855f7"></stop>
+          <stop offset="100%" stop-color="#00ff88"></stop>
+        </linearGradient>
+        <linearGradient id="trailFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,240,255,0.22)"></stop>
+          <stop offset="100%" stop-color="rgba(0,240,255,0)"></stop>
+        </linearGradient>
+      </defs>
+
+      <path class="trail-fill" d={area}></path>
+      <path class="trail-line" d={line}></path>
+
+      {
+        NODES.map((n, i) => (
+          <g>
+            <circle class="trail-node-halo" cx={n.x} cy={n.y} r="5" style={`animation-delay:${1.6 + i * 0.22}s`} />
+            <circle class="trail-node" cx={n.x} cy={n.y} r="4.2" style={`animation-delay:${1.1 + i * 0.14}s`} />
+            <text class="trail-label" x={n.x} y={n.y - 14} text-anchor="middle">
+              {n.label}
+            </text>
+          </g>
+        ))
+      }
+    </svg>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" data-count={years}>{years}</span>
+      <span class="stat-label">Years Running</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-count={total}>{total}</span>
+      <span class="stat-label">Posts</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-count={cats}>{cats}</span>
+      <span class="stat-label">Categories</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Keep Going</span>
+    </div>
+  </div>
+
+  <span class="scroll-cue">Scroll</span>
+</section>

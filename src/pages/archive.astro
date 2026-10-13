@@ -1,0 +1,64 @@
+---
+/**
+ * 归档页：按年份倒序的时间轴，列出全部文章。
+ *
+ * 侧栏的全量索引负责「搜索 + 筛选」，这一页负责「一眼看完十多年的时间跨度」，
+ * 两者用途不同所以都保留。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { catUrl } from '../data/site';
+import { getAllPosts } from '../lib/posts';
+
+const posts = await getAllPosts();
+
+// 按年份分组，年份倒序、组内保持 getAllPosts 的日期倒序
+const groups = new Map<string, typeof posts>();
+for (const p of posts) {
+  const list = groups.get(p.year);
+  if (list) list.push(p);
+  else groups.set(p.year, [p]);
+}
+const years = [...groups.keys()].sort((a, b) => Number(b) - Number(a));
+
+const totalWords = posts.reduce((sum, p) => sum + p.minutes, 0);
+---
+
+<BaseLayout
+  title="归档"
+  description={`${posts.length} 篇文章的完整时间轴，${years[years.length - 1]} 年至今。`}
+>
+  <header class="page-head">
+    <div class="container">
+      <span class="page-eyebrow">// Full Trail Log</span>
+      <h1 class="page-title">全部归档</h1>
+      <p class="page-sub">
+        {posts.length} 篇 · 跨越 {years.length} 个年份 · 约 {totalWords} 分钟阅读量
+      </p>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <div class="container">
+      {
+        years.map((year) => (
+          <section class="archive-group" data-reveal>
+            <h2 class="archive-year">{year}</h2>
+            <ul class="archive-list">
+              {groups.get(year)!.map((p) => (
+                <li class="archive-item">
+                  <span class="archive-date">{p.dateLabel}</span>
+                  <a class="archive-title" href={p.url}>
+                    {p.title}
+                  </a>
+                  <a class="archive-cat" href={catUrl(p.catSlug)}>
+                    {p.category}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,118 @@
+---
+/**
+ * 首页。
+ *
+ * 结构：全屏 Hero（越野轨迹主视觉）→ 最新记录卡片 → 分类磁贴 → 关于本站。
+ * 侧栏已经承载「全量文章 + 搜索 + 分类筛选」，所以首页只做策展，不重复长列表，
+ * 完整时间轴放在 /archive.html。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import PostCard from '../components/PostCard.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, CATEGORY_ORDER, ARCHIVE_URL, catUrl } from '../data/site';
+import { getAllPosts } from '../lib/posts';
+
+const posts = await getAllPosts();
+
+/** 首页只策展最近 6 篇，其余交给归档页 */
+const LATEST_NUM = 6;
+const latest = posts.slice(0, LATEST_NUM);
+
+// 分类磁贴的计数与「最近一篇」时间，全部来自真实数据
+const byCat = CATEGORY_ORDER.map((c) => {
+  const list = posts.filter((p) => p.catSlug === c.slug);
+  return { ...c, count: list.length, last: list[0]?.dateLabel };
+}).filter((c) => c.count > 0);
+
+/** 最早一篇文章的年份，用于「从 X 年到现在」的表述 */
+const firstYear = posts.length
+  ? Math.min(...posts.map((p) => Number(p.year)))
+  : new Date().getFullYear();
+---
+
+<BaseLayout>
+  <Hero posts={posts} />
+
+  <!-- 最新记录 -->
+  <section class="section" id="latest" aria-labelledby="latest-title">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          <span class="section-eyebrow">// Latest Transmissions</span>
+          <h2 class="section-title" id="latest-title">最近的记录</h2>
+          <p class="section-sub">从 {firstYear} 年到现在，共 {posts.length} 篇。</p>
+        </div>
+        <a class="section-more" href={ARCHIVE_URL}>
+          全部归档
+          <Icon name="arrowUpRight" />
+        </a>
+      </header>
+
+      <div class="card-grid">
+        {latest.map((p, i) => <PostCard post={p} index={i} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- 分类 -->
+  <section class="section" id="categories" aria-labelledby="cat-title">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          <span class="section-eyebrow">// Trail Segments</span>
+          <h2 class="section-title" id="cat-title">按路线分类</h2>
+          <p class="section-sub">技术、读书、资源、工具、生活、面试。</p>
+        </div>
+      </header>
+
+      <div class="cat-grid">
+        {
+          byCat.map((c, i) => (
+            <a
+              class="cat-tile"
+              href={catUrl(c.slug)}
+              data-num={String(c.count).padStart(2, '0')}
+              data-reveal
+              style={`--i:${i}`}
+            >
+              <span class="cat-en">{c.en}</span>
+              <span class="cat-zh">{c.zh}</span>
+              <span class="cat-count">
+                {c.count} 篇{c.last ? ` · 最近 ${c.last}` : ''}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于 -->
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          <span class="section-eyebrow">// About</span>
+          <h2 class="section-title" id="about-title">关于本站</h2>
+        </div>
+      </header>
+
+      <div class="about-panel" data-reveal>
+        <p>
+          这里是 <strong>{SITE.author}</strong> 的个人博客，站名《{SITE.title}》。
+          写技术踩坑、读书笔记，也写生活里那些需要认真想清楚的事。
+        </p>
+        <p>
+          站点从 Jekyll 迁到了 Astro：静态构建、零运行时框架、
+          2013 年以来的全部历史 URL 原样保留，旧链接不会失效。
+        </p>
+        <ul class="about-points">
+          <li><span class="dot"></span>三栏结构：图标轨 / 全量索引 / 主内容，索引支持即时搜索与分类筛选</li>
+          <li><span class="dot"></span>正文由 Shiki 高亮，代码块带语言标签与一键复制</li>
+          <li><span class="dot"></span>尊重系统「减少动态效果」偏好，动画可被一键收敛</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

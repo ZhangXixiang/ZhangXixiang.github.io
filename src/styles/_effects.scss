@@ -1,0 +1,207 @@
+@use 'tokens' as *;
+
+// ============================================================================
+// 特效层：粒子画布 / 入场彩带 / 欢迎遮罩 / 滚动揭示 / 视图过渡
+// ============================================================================
+
+// ---- 画布 ----
+#particles-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+// ---- 入场欢迎遮罩 ----
+#welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+
+  // 遮罩底：暗化 + 中心辉光，让文字可读
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 50%,
+    rgba(5, 7, 13, 0.86),
+    rgba(5, 7, 13, 0.96) 70%
+  );
+
+  &.is-show {
+    opacity: 1;
+  }
+
+  &.is-out {
+    opacity: 0;
+    transition: opacity 0.85s ease;
+  }
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 9vw, 5.2rem);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 60px rgba(168, 85, 247, 0.55),
+    0 0 100px rgba(0, 240, 255, 0.35);
+  animation: welcomeGlitch 2.1s infinite;
+}
+
+.welcome-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 2vw, 0.82rem);
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  opacity: 0;
+  animation: fadeUpIn 0.8s 0.45s ease forwards;
+}
+
+// 加载细线
+.welcome-bar {
+  width: min(240px, 52vw);
+  height: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+  background: rgba(0, 240, 255, 0.14);
+  border-radius: 2px;
+  opacity: 0;
+  animation: fadeUpIn 0.6s 0.6s ease forwards;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent);
+    animation: barSweep 1.1s ease-in-out infinite;
+  }
+}
+
+@keyframes welcomeGlitch {
+  0%, 86%, 100% {
+    transform: translate(0);
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 60px rgba(168, 85, 247, 0.55);
+  }
+  88% {
+    transform: translate(-3px, 1px);
+    text-shadow: -3px 0 var(--neon-pink), 3px 0 var(--neon-cyan);
+  }
+  90% {
+    transform: translate(3px, -1px);
+    text-shadow: 3px 0 var(--neon-cyan), -3px 0 var(--neon-pink);
+  }
+  92% {
+    transform: translate(-2px, 0);
+    text-shadow: -2px 0 var(--neon-purple), 2px 0 var(--neon-green);
+  }
+  94% {
+    transform: translate(0);
+  }
+}
+
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes barSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+// 彩带发射时的轻微震屏
+body.is-shaking {
+  animation: screenShake 0.5s ease-in-out;
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-4px, 2px); }
+  20% { transform: translate(4px, -2px); }
+  30% { transform: translate(-3px, -1px); }
+  40% { transform: translate(3px, 1px); }
+  50% { transform: translate(-2px, 2px); }
+  60% { transform: translate(2px, -1px); }
+  70% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  90% { transform: translate(-1px, 0); }
+}
+
+// ---- 滚动揭示 ----
+// 初始态：下移 + 透明 + 轻微模糊；IntersectionObserver 加 .is-in 后归位。
+// 用 html.js 收口：无 JS（或脚本加载失败）时不加该类，内容直接可见，不会出现「白屏」。
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(6px);
+  transition: opacity 0.72s var(--ease-out-expo), transform 0.72s var(--ease-out-expo),
+    filter 0.72s var(--ease-out-expo);
+  // 逐项延迟由 --i 变量驱动，形成瀑布式入场
+  transition-delay: calc(var(--i, 0) * 62ms);
+
+  &.is-in {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+// ---- 视图过渡（替代 jQuery pjax）----
+// Astro View Transitions：主内容淡入 + 侧栏列表保持不动
+::view-transition-old(main-content) {
+  animation: fadeOutLeft 0.26s var(--ease-out-expo) both;
+}
+
+::view-transition-new(main-content) {
+  animation: fadeInRight 0.36s var(--ease-out-expo) both;
+}
+
+@keyframes fadeOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-14px); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+// 顶部过渡进度条（Astro 会在过渡期间加 .astro-progress 之类，这里用自定义元素兜底）
+#nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+  opacity: 0;
+  transition: width 0.3s ease, opacity 0.2s ease;
+
+  &.is-active {
+    opacity: 1;
+  }
+}

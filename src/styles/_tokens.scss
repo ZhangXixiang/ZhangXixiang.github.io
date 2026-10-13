@@ -1,0 +1,87 @@
+// ============================================================================
+// 设计令牌 —— CYBER TRAIL
+//
+// 视觉概念：把站点标题《穿越整个城市的越野跑》翻译成赛博语言。
+// 深夜城市数据荒原（深空蓝黑分层表面）+ 霓虹轨迹（青/紫双色主线，
+// 绿为通过态，粉为故障态），配合扫描线、噪点与透视网格地平线营造纵深。
+//
+// 令牌以 CSS 自定义属性为主，便于 Astro 组件内联样式与脚本直接取用；
+// 少量编译期 SCSS 变量仅用于色彩运算（如派生半透明描边）。
+// ============================================================================
+
+:root {
+  // ---- 表面分层：从最底到最浮 ----
+  --void: #05070d;
+  --surface-0: #0a0e17;
+  --surface-1: #111827;
+  --surface-2: #1a2332;
+  --surface-3: #222e42;
+
+  // ---- 霓虹强调色 ----
+  --neon-cyan: #00f0ff;
+  --neon-purple: #a855f7;
+  --neon-green: #00ff88;
+  --neon-pink: #ff006e;
+  --neon-amber: #ffd166;
+
+  // ---- 文本层级 ----
+  --text-hi: #eaf1fb;
+  --text-mid: rgba(226, 232, 240, 0.74);
+  --text-lo: rgba(226, 232, 240, 0.44);
+  --text-faint: rgba(226, 232, 240, 0.26);
+
+  // ---- 描边与分隔 ----
+  --line: rgba(0, 240, 255, 0.14);
+  --line-soft: rgba(226, 232, 240, 0.08);
+  --line-strong: rgba(0, 240, 255, 0.38);
+
+  // ---- 字体：拉丁自托管（woff2 子集，共约 43KB），中文走系统栈零下载 ----
+  // Orbitron 不含中文字形，中文由系统 CJK 字体接管，避免视觉断裂
+  --font-display: 'Orbitron Variable', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-body: 'Chakra Petch', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas,
+    'PingFang SC', monospace;
+
+  // ---- 尺寸 ----
+  --rail-width: 96px; // 左侧图标轨
+  --list-width: 344px; // 中间文章列表
+  --sidebar-width: calc(var(--rail-width) + var(--list-width));
+  --post-max-width: 780px;
+
+  // ---- 辉光预设 ----
+  --glow-cyan: 0 0 12px rgba(0, 240, 255, 0.45);
+  --glow-cyan-lg: 0 0 24px rgba(0, 240, 255, 0.35), 0 0 60px rgba(0, 240, 255, 0.15);
+  --glow-purple: 0 0 12px rgba(168, 85, 247, 0.45);
+
+  // ---- 动效曲线 ----
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 0.18s;
+  --dur-base: 0.32s;
+  --dur-slow: 0.7s;
+
+  // ---- 纹理 ----
+  // 扫描线：1px 亮线 + 2px 间隔，极低透明度，只在暗背景上形成 CRT 质感
+  --scanlines: repeating-linear-gradient(
+    0deg,
+    rgba(0, 240, 255, 0.028) 0 1px,
+    transparent 1px 3px
+  );
+  // 噪点：SVG feTurbulence，用于打散大面积纯色的塑料感
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+
+  color-scheme: dark;
+}
+
+// 编译期变量：供 SCSS 色彩函数派生使用
+$cyan: #00f0ff;
+$purple: #a855f7;
+$green: #00ff88;
+$pink: #ff006e;
+
+// ---- 断点 ----
+$bp-hide-sidebar: 1024px;
+$bp-mobile: 767px;
+$bp-narrow: 480px;

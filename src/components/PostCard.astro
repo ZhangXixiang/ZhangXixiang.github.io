@@ -1,0 +1,53 @@
+---
+/**
+ * 文章卡片：首页「最近记录」与归档页共用。
+ *
+ * 整卡可点（标题里的 `<a>` 通过 ::after 撑满卡片），
+ * 这样既有语义化的链接文本，又不必把整块内容都塞进 `<a>` 里。
+ */
+import Icon from './Icon.astro';
+import { catUrl } from '../data/site';
+import type { PostView } from '../lib/posts';
+
+interface Props {
+  post: PostView;
+  /** 滚动揭示的瀑布延迟序号 */
+  index?: number;
+}
+
+const { post, index = 0 } = Astro.props;
+
+// 描边扫光的错开延迟：同排卡片若完全同步会显得呆板，按序号错开一小段。
+// 封顶 5 档，列表再长也不会让靠后的卡片等太久。
+const beamDelay = Math.min(index, 5) * 90;
+---
+
+<article
+  class="post-card"
+  data-reveal
+  style={`--i:${Math.min(index, 11)};--beam-delay:${beamDelay}`}
+>
+  <!-- 霓虹描边扫光：装饰性图层，动画由 scripts/fx.ts 在进视口/hover 时触发 -->
+  <span class="card-beam" aria-hidden="true"></span>
+
+  <div class="card-top">
+    <time datetime={post.isoDate}>{post.dateLabel}</time>
+    <a class="card-cat" href={catUrl(post.catSlug)}>{post.category}</a>
+  </div>
+
+  <h3 class="card-title">
+    <a href={post.url}>{post.title}</a>
+  </h3>
+
+  {post.description && <p class="card-excerpt">{post.description}</p>}
+
+  <div class="card-foot">
+    <span class="card-read">
+      <Icon name="clock" />
+      {post.minutes} min read
+    </span>
+    <span class="card-arrow" aria-hidden="true">
+      <Icon name="arrowUpRight" />
+    </span>
+  </div>
+</article>

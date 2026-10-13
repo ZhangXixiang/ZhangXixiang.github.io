@@ -1,0 +1,36 @@
+---
+/**
+ * 文章页路由。
+ *
+ * `[...slug]` 是 catch-all：slug 形如 `2018/09/04/timsort`，
+ * 配合 astro.config.mjs 的 `build.format: 'file'`，产出
+ * `dist/2018/09/04/timsort.html` —— 与旧 Jekyll 站
+ * `permalink: /:year/:month/:day/:title.html` 逐字节一致，
+ * 2013 年以来被外部引用的历史 URL 不会 404。
+ */
+import { render } from 'astro:content';
+import PostLayout from '../layouts/PostLayout.astro';
+import { getAllPosts, neighbors } from '../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    // 去掉首斜杠与 .html 后缀，交给 build.format 还原成文件路径
+    params: { slug: post.url.replace(/^\//, '').replace(/\.html$/, '') },
+    props: { post, posts },
+  }));
+}
+
+interface Props {
+  post: import('../lib/posts').PostView;
+  posts: import('../lib/posts').PostView[];
+}
+
+const { post, posts } = Astro.props;
+const { Content, headings } = await render(post.entry);
+const { prev, next } = neighbors(posts, post);
+---
+
+<PostLayout post={post} headings={headings} prev={prev} next={next}>
+  <Content />
+</PostLayout>

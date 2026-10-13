@@ -1,0 +1,13 @@
+// 全站样式入口：Astro 会将其打包为单一 CSS，由 BaseLayout 引入一次。
+// 顺序有意义：base 提供 mixin 与重置，tokens 供各文件 @use，最后 responsive 覆盖断点。
+@use 'base';
+@use 'layout';
+@use 'sidebar';
+@use 'hero';
+@use 'home';
+@use 'post';
+@use 'code';
+@use 'effects';
+// fx 承载由 scripts/fx.ts 驱动的增强特效，需在 effects 之后、responsive 之前
+@use 'fx';
+@use 'responsive';

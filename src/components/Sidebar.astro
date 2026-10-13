@@ -1,0 +1,128 @@
+---
+/**
+ * 侧栏：左侧图标轨 + 中间文章索引。
+ *
+ * 索引列表是全量渲染的（22 篇，体积可忽略），筛选与搜索在客户端做，
+ * 因此切换分类无需请求、无页面刷新 —— 这是原 3-Jekyll 主题的签名交互，予以保留。
+ */
+import Icon from './Icon.astro';
+import { SITE, SOCIALS, CATEGORY_ORDER, categorySlug, fmtDate } from '../data/site';
+
+interface Props {
+  posts: Array<{
+    url: string;
+    title: string;
+    date: Date;
+    category: string;
+    keywords: string[];
+    tags: string[];
+  }>;
+  currentPath: string;
+}
+
+const { posts, currentPath } = Astro.props;
+
+/** 各分类文章数，用于 chip 上的计数 */
+const counts = new Map<string, number>();
+for (const p of posts) {
+  const s = categorySlug(p.category);
+  counts.set(s, (counts.get(s) ?? 0) + 1);
+}
+---
+
+<aside id="sidebar">
+  <div class="rail">
+    <a class="avatar-wrap" href="/" aria-label="回到首页">
+      <img src={SITE.avatar} alt={`${SITE.author} 头像`} width="62" height="62" decoding="async" />
+    </a>
+
+    <span class="rail-wordmark" aria-hidden="true">{SITE.wordmark}</span>
+
+    <nav class="social" aria-label="社交与订阅">
+      {
+        SOCIALS.map((s) => (
+          <a
+            class="social-link"
+            href={s.href}
+            aria-label={s.label}
+            title={s.label}
+            target={s.external ? '_blank' : undefined}
+            rel={s.external ? 'noopener noreferrer me' : undefined}
+          >
+            <Icon name={s.icon} />
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="index-panel">
+    <div class="index-head">
+      <div class="index-eyebrow">
+        <span>// INDEX</span>
+        <span class="count">{String(posts.length).padStart(2, '0')} POSTS</span>
+      </div>
+
+      <div class="search-box">
+        <input
+          id="search-input"
+          type="search"
+          placeholder="搜索标题 / 关键词…"
+          aria-label="搜索文章"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <Icon name="search" />
+      </div>
+    </div>
+
+    <div class="filters" id="filters" role="group" aria-label="按分类筛选">
+      <button type="button" class="chip is-active" data-filter="all" aria-pressed="true">
+        全部 <span aria-hidden="true">{posts.length}</span>
+      </button>
+      {
+        CATEGORY_ORDER.map((c) =>
+          counts.get(c.slug) ? (
+            <button
+              type="button"
+              class="chip"
+              data-filter={c.slug}
+              aria-pressed="false"
+              title={c.en}
+            >
+              {c.zh} <span aria-hidden="true">{counts.get(c.slug)}</span>
+            </button>
+          ) : null,
+        )
+      }
+    </div>
+
+    <nav class="post-list" id="post-list" aria-label="文章索引">
+      {
+        posts.map((p) => {
+          const slug = categorySlug(p.category);
+          const isCurrent = p.url === currentPath;
+          // 搜索索引：标题 + 关键词 + 标签，全小写便于不区分大小写匹配
+          const search = [p.title, ...p.keywords, ...p.tags].join(' ').toLowerCase();
+          return (
+            <a
+              class={`post-item${isCurrent ? ' is-current' : ''}`}
+              href={p.url}
+              data-cat={slug}
+              data-search={search}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              <span class="post-item-meta">
+                <time datetime={p.date.toISOString().slice(0, 10)}>{fmtDate(p.date)}</time>
+                <span class="post-item-cat">{p.category}</span>
+              </span>
+              <span class="post-item-title">{p.title}</span>
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <p class="empty-hint" id="empty-hint" hidden>// NO MATCH — 换个关键词试试</p>
+  </div>
+</aside>
