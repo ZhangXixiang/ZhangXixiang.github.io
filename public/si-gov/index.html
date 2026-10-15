@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SI.gov Style Replica — Unofficial Demo</title>
+<meta name="description" content="Unofficial front-end style study: a replica of the si.gov homepage look and interactions (particle field, iris transitions, pinned scroll). Not a government website.">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./si.css">
+<script>
+/* incoming iris flash flag (mirrors original behaviour) */
+try{if(sessionStorage.getItem('si-replica-iris')!==null)document.documentElement.classList.add('irising')}catch(e){}
+</script>
+</head>
+<body>
+
+<canvas id="field" aria-hidden="true"></canvas>
+
+<a class="brand" href="./" aria-label="Home">
+  <img src="./assets/si-logo.png" crossorigin="anonymous" alt="SI.GOV">
+</a>
+
+<div class="pagelabel" aria-hidden="true">
+  <span>si.gov replica</span><i></i><span id="plabel">Home</span>
+</div>
+
+<nav class="dots" id="dots" aria-label="Sections on this page"></nav>
+
+<button class="orb" id="orb" aria-expanded="false" aria-controls="menu">
+  <svg viewBox="0 0 86 86" aria-hidden="true">
+    <defs><path id="circ" d="M43,43 m-32,0 a32,32 0 1,1 64,0 a32,32 0 1,1 -64,0"/></defs>
+    <text><textPath href="#circ" textLength="194" lengthAdjust="spacing">SUPER INTELLIGENCE ·</textPath></text>
+  </svg>
+  <span id="orbTxt">Menu</span>
+</button>
+
+<nav class="menu" id="menu" aria-label="Main">
+  <div class="col">
+    <ol id="menuList">
+      <li><a href="./" style="--i:0" data-preview="text:SI" aria-current="page">Home<small>01</small></a></li>
+      <li><a href="https://www.si.gov/initiatives/education" style="--i:1" data-preview="text:EDUCATION">Education<small>02</small></a></li>
+      <li><a href="https://www.si.gov/initiatives/presidential-challenge" style="--i:2" data-preview="text:CHALLENGE">Presidential Challenge<small>03</small></a></li>
+    </ol>
+    <div class="meta">
+      <a href="https://www.si.gov/" target="_blank" rel="noopener">View the real si.gov</a>
+      <a href="https://www.whitehouse.gov/" target="_blank" rel="noopener">The White House</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<section class="hero" data-form="text:SI;hero" data-dot="Super Intelligence">
+  <div class="col row">
+    <h1 class="reveal">
+      <span class="ln"><span>America is in a race</span></span>
+      <span class="ln"><span>for <em>Super Intelligence.</em></span></span>
+      <span class="ln"><span>We intend to win it.</span></span>
+    </h1>
+    <div>
+      <p>The official home of America's work to lead the world in Super Intelligence, from the Genesis Mission to the next generation of American innovators.</p>
+      <p style="margin-top:1.4rem"><a class="btn" href="#initiatives" id="toInits">Explore Initiatives</a></p>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track" id="mq">
+    <span>Super Intelligence</span><span>The Genesis Mission</span><span>SI Education</span><span>Presidential SI Challenge</span>
+    <span>Super Intelligence</span><span>The Genesis Mission</span><span>SI Education</span><span>Presidential SI Challenge</span>
+    <span>Super Intelligence</span><span>The Genesis Mission</span><span>SI Education</span><span>Presidential SI Challenge</span>
+  </div>
+</div>
+
+<section class="pad" data-form="sphere:ring" data-dot="The race">
+  <div class="halfL">
+    <div>
+      <span class="tag">Why it matters</span>
+      <p class="words" id="w1">
+        <span>Whoever</span> <span>builds</span> <span>the</span> <span>largest</span> <span>SI</span> <span>ecosystem</span> <span>will</span> <span>set</span> <span>the</span> <span class="red">global</span> <span class="red">standards</span> <span>and</span> <span>reap</span> <span>the</span> <span>economic</span> <span>and</span> <span>security</span> <span>rewards.</span>
+      </p>
+      <p class="lead" style="margin-top:2.4rem">Under President Trump, the nation aims to usher in a new golden age of innovation, human flourishing and technological achievement for the American people.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pad" data-form="text:13" data-dot="The orders">
+  <div class="halfL">
+    <div>
+      <span class="tag">Presidential action</span>
+      <div class="big-num" id="ninety">0</div>
+      <h2 class="d3" style="margin-top:1rem;max-width:16ch">executive orders on Super Intelligence across President Trump's two terms.</h2>
+      <p class="lead">From clearing barriers in January 2025 to frontier security in 2026. Scroll on for three orders reshaping the country.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pin" id="pillars" data-dot="Three orders">
+  <div class="stick">
+    <div class="col">
+      <div class="steps-ui" id="pillarUI">
+        <div class="progress"><i><b></b></i><i><b></b></i><i><b></b></i></div>
+        <article class="on">
+          <span class="k">November 24, 2025</span>
+          <h3 class="d2">The Genesis Mission</h3>
+          <p>The nation's flagship SI-for-Science initiative that unites 15 federal agencies with industry, academia, and the Department of Energy's National Labs to solve the most pressing challenges using super intelligence.</p>
+        </article>
+        <article>
+          <span class="k">July 23, 2025</span>
+          <h3 class="d2">Data Center Infrastructure</h3>
+          <p>Federal permitting for the data centers that power Super Intelligence moves faster, so American capacity can be built on American soil.</p>
+        </article>
+        <article>
+          <span class="k">July 23, 2025</span>
+          <h3 class="d2">The American SI Stack</h3>
+          <p>America exports its full technology stack, from chips to models to standards, to allies and partners around the world.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+  <div class="step" data-form="helix" data-step="0"></div>
+  <div class="step" data-form="towers" data-step="1"></div>
+  <div class="step" data-form="sphere:ring" data-step="2"></div>
+</section>
+
+<section class="summit" data-form="broadcast" data-dot="The Summit">
+  <div class="sm-ghost" aria-hidden="true">SUMMIT</div>
+  <div class="col">
+    <div class="sm-head">
+      <div>
+        <span class="tag fade">Watch</span>
+        <h2 class="d2 reveal sm-title">
+          <span class="ln"><span>Science: A New</span></span>
+          <span class="ln"><span>Golden Age Summit</span></span>
+        </h2>
+      </div>
+      <p class="lead fade" style="--d:.2">A look into the historic gathering to renew American Science for a New Golden Age of Discovery.</p>
+    </div>
+    <div class="sm-player fade" style="--d:.3" data-video="cGj7p9io4oc" data-duration="8:00">
+      <button class="sm-poster" type="button" aria-label="Play the Science: A New Golden Age Summit video">
+        <span class="sm-thumb" style="background-image:url(./assets/summit-poster.jpg)"></span>
+        <span class="sm-tint"></span>
+        <span class="sm-scan"></span>
+        <i class="hud tl"></i><i class="hud tr"></i><i class="hud bl"></i><i class="hud br"></i>
+        <span class="sm-label"><b></b>The Summit</span>
+        <span class="sm-time">08:00</span>
+        <span class="sm-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="light pad" id="initiatives" data-form="scatter" data-dot="Initiatives">
+  <div class="col">
+    <span class="tag fade">Initiatives</span>
+    <h2 class="d2 reveal" style="max-width:12ch;margin-bottom:3rem">
+      <span class="ln"><span>Raising the next</span></span>
+      <span class="ln"><span>generation of</span></span>
+      <span class="ln"><span>American innovators.</span></span>
+    </h2>
+    <div class="inits">
+      <a class="init fade" style="--d:.1" href="https://www.si.gov/initiatives/education" target="_blank" rel="noopener">
+        <span class="tag">White House Task Force</span>
+        <div><h3>SI Education</h3><p>Bringing SI literacy and training to K-12 students and the teachers who guide them.</p></div>
+        <div class="go"><span>Explore</span><b>→</b></div>
+      </a>
+      <a class="init fade" style="--d:.22" href="https://www.si.gov/initiatives/presidential-challenge" target="_blank" rel="noopener">
+        <span class="tag">With First Lady Melania Trump</span>
+        <div><h3>Presidential SI Challenge</h3><p>A nationwide call to action and competition for students, educators, and K-12 schools to become SI ready and to build the future with powerful tools available today.</p></div>
+        <div class="go"><span>Sign Up</span><b>→</b></div>
+      </a>
+      <a class="init fade" style="--d:.34" href="https://www.whitehouse.gov/edai" target="_blank" rel="noopener">
+        <span class="tag">Public-Private Partnership</span>
+        <div><h3>Pledge to America's Youth</h3><p>Companies and organizations committing resources to SI education for young Americans.</p></div>
+        <div class="go"><span>Discover</span><b>→</b></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="pad quote" data-form="flag;right" data-dot="Leadership">
+  <div class="halfL">
+    <div>
+      <blockquote class="reveal">
+        <span class="ln"><span>“The United States</span></span>
+        <span class="ln"><span>of America is the</span></span>
+        <span class="ln"><span>Leader in SI”</span></span>
+      </blockquote>
+      <cite>President Donald J. Trump</cite>
+    </div>
+  </div>
+</section>
+
+<section class="pad" style="padding-top:0" data-form="flag;right" data-dot="Stay informed">
+  <div class="halfL">
+    <div>
+      <span class="tag">Stay in the know</span>
+      <h2 class="d2" style="max-width:12ch">Follow every SI initiative as it happens.</h2>
+      <div class="acts">
+        <a class="btn" href="https://www.si.gov/" target="_blank" rel="noopener">Open the real si.gov</a>
+        <a class="link" href="https://www.si.gov/initiatives/presidential-challenge" target="_blank" rel="noopener">Presidential SI Challenge</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="col">
+    <div class="fgrid">
+      <div class="fsign">
+        <p class="fq">America's home for<br>Super Intelligence policy.</p>
+        <form class="mc" novalidate>
+          <p class="msub">Stay in the know on SI Initiatives.</p>
+          <div class="mrow">
+            <label for="mcEmail" class="sr">Email address</label>
+            <input id="mcEmail" name="EMAIL" type="email" placeholder="you@example.com" autocomplete="email" required>
+            <button type="submit">Sign up</button>
+          </div>
+          <p class="mmsg" id="mcMsg" aria-live="polite"></p>
+        </form>
+      </div>
+      <div>
+        <h4>Initiatives</h4>
+        <ul>
+          <li><a href="https://www.whitehouse.gov/edai" target="_blank" rel="noopener">Pledge to Youth</a></li>
+          <li><a href="https://www.si.gov/initiatives/education" target="_blank" rel="noopener">Education</a></li>
+          <li><a href="https://www.si.gov/initiatives/presidential-challenge" target="_blank" rel="noopener">Presidential Challenge</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://www.whitehouse.gov" target="_blank" rel="noopener">The White House</a></li>
+          <li><a href="https://www.whitehouse.gov/news" target="_blank" rel="noopener">News</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>About this demo</h4>
+        <ul>
+          <li><a href="https://github.com/ZhangXixiang/ZhangXixiang.github.io/tree/master/public/si-gov" target="_blank" rel="noopener">Source (GitHub)</a></li>
+          <li><a href="https://www.si.gov/" target="_blank" rel="noopener">Original site</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="giant" role="img" aria-label="SI.GOV"></div>
+    <div class="legal">
+      <span>Unofficial style demo · 个人样式学习复刻，非政府网站</span>
+      <span>
+        <a href="https://www.whitehouse.gov/copyright/" target="_blank" rel="noopener">Copyright</a> &nbsp; <a href="https://www.whitehouse.gov/privacy/" target="_blank" rel="noopener">Privacy Policy</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<div class="iris" id="iris" aria-hidden="true"><b id="irisTxt"></b></div>
+
+<script src="./si.js" defer></script>
+</body>
+</html>
